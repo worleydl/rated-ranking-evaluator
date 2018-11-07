@@ -37,6 +37,8 @@ public class ApacheSolr implements SearchPlatform {
     private File coreProperties;
     private File renamedCoreProperties;
 
+    private boolean refreshRequired = true;
+
     @Override
     public void beforeStart(final Map<String, Object> configuration) {
         solrHome = new File(
@@ -146,6 +148,11 @@ public class ApacheSolr implements SearchPlatform {
     @Override
     public String getName() {
         return "Apache Solr";
+    }
+
+    @Override
+    public boolean isRefreshRequired() {
+        return refreshRequired;
     }
 
     /**

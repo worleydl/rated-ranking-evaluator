@@ -58,17 +58,23 @@ public class Elasticsearch implements SearchPlatform {
     private final ObjectMapper mapper = new ObjectMapper();
 
     private File nodeConfigFolder;
+    private boolean mustRefresh = false;
 
     @Override
     public void beforeStart(final Map<String, Object> configuration) {
         final File logsFolder = new File("target/elasticsearch/logs");
-        final File dataFolder = new File("target/elasticsearch/data");
+        final File dataFolder = new File((String) configuration.get("path.data"));
 
         logsFolder.delete();
-        dataFolder.delete();
-
         logsFolder.mkdirs();
-        dataFolder.mkdirs();
+
+        if ((Boolean) configuration.get("forceRefresh")) {
+            dataFolder.delete();
+        }
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+            mustRefresh = true;
+        }
 
         nodeConfigFolder = new File((String) configuration.get("path.home"), "config");
         nodeConfigFolder.mkdir();
@@ -202,6 +208,11 @@ public class Elasticsearch implements SearchPlatform {
         } catch (final IOException exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    @Override
+    public boolean isRefreshRequired() {
+        return mustRefresh;
     }
 
     @SuppressWarnings("unchecked")

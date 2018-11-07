@@ -62,6 +62,7 @@ public class FileUpdateChecker {
         } else {
             try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(checksumFile)))) {
                 checksums.forEach((dir, sum) -> pw.println(dir + "," + sum));
+                pw.flush();
             }
         }
     }
