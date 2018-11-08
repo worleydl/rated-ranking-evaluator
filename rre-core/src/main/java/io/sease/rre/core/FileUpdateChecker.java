@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+
 public class FileUpdateChecker {
 
     private final static Logger LOGGER = LogManager.getLogger(FileUpdateChecker.class);
@@ -67,7 +68,7 @@ public class FileUpdateChecker {
         }
     }
 
-    public static String hashDirectory(String directoryPath, boolean includeHiddenFiles) throws IOException {
+    static String hashDirectory(String directoryPath, boolean includeHiddenFiles) throws IOException {
         File directory = new File(directoryPath);
 
         if (!directory.isDirectory()) {

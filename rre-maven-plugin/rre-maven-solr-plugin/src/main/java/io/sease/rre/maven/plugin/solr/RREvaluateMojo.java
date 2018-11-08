@@ -76,8 +76,8 @@ public class RREvaluateMojo extends AbstractMojo {
                     checksumFile);
 
             final Map<String, Object> configuration = new HashMap<>();
-            configuration.put("solr.home", "/tmp");
-            configuration.put("solr.data.dir", dataFolder);
+            configuration.put("solr.home", dataFolder);
+            configuration.put("forceRefresh", forceRefresh);
 
             write(engine.evaluate(configuration));
         } catch (final IOException exception) {

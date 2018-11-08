@@ -102,7 +102,7 @@ public class Engine {
     }
 
     private void initialiseFileUpdateChecker(String checksumFile) {
-        if (!forceRefresh && checksumFile != null) {
+        if (checksumFile != null) {
             try {
                 fileUpdateChecker = new FileUpdateChecker(checksumFile);
             } catch (IOException e) {
@@ -404,6 +404,7 @@ public class Engine {
      * @param data      the dataset.
      */
     private void prepareData(final String indexName, final File data) {
+        LOGGER.info("Preparing data for " + indexName + " from " + data.getAbsolutePath());
         final File[] versionFolders =
                 safe(configurationsFolder.listFiles(
                         file -> ONLY_DIRECTORIES.accept(file)
@@ -417,7 +418,7 @@ public class Engine {
         boolean corporaChanged = folderHasChanged(corporaFolder);
 
         stream(versionFolders)
-                .filter(versionFolder -> (corporaChanged || platform.isRefreshRequired() || folderHasChanged(versionFolder)))
+                .filter(versionFolder -> (folderHasChanged(versionFolder) || corporaChanged || platform.isRefreshRequired()))
                 .flatMap(versionFolder -> stream(safe(versionFolder.listFiles(ONLY_NON_HIDDEN_FILES))))
                 .filter(file -> (file.isDirectory() && file.getName().equals(indexName))
                         || (file.isFile() && file.getName().equals("index-shape.json")))
@@ -439,7 +440,7 @@ public class Engine {
     private boolean folderHasChanged(File folder) {
         boolean ret = true;
 
-        if (fileUpdateChecker != null && !forceRefresh) {
+        if (fileUpdateChecker != null) {
             try {
                 ret = fileUpdateChecker.directoryHasChanged(folder.getAbsolutePath());
             } catch (IOException e) {
