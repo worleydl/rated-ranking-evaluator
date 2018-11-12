@@ -72,7 +72,6 @@ public class RREvaluateMojo extends AbstractMojo {
                     fields.split(","),
                     exclude,
                     include,
-                    forceRefresh,
                     checksumFile);
 
             final Map<String, Object> configuration = new HashMap<>();

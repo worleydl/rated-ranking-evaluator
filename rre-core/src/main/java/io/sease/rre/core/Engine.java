@@ -53,7 +53,6 @@ public class Engine {
     private final SearchPlatform platform;
     private final String[] fields;
 
-    private final boolean forceRefresh;
     private FileUpdateChecker fileUpdateChecker;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +78,6 @@ public class Engine {
             final String[] fields,
             final List<String> exclude,
             final List<String> include,
-            final boolean forceRefresh,
             final String checksumFilepath) {
         this.configurationsFolder = new File(configurationsFolderPath);
         this.corporaFolder = new File(corporaFolderPath);
@@ -97,7 +95,6 @@ public class Engine {
                         .filter(Objects::nonNull)
                         .collect(toList());
 
-        this.forceRefresh = forceRefresh;
         initialiseFileUpdateChecker(checksumFilepath);
     }
 
