@@ -11,11 +11,13 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.core.CoreContainer;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -165,7 +167,12 @@ public class ApacheSolr implements SearchPlatform {
                                     response.getResults().getNumFound(),
                                     new ArrayList<Map<String, Object>>(response.getResults())))
                     .get();
-        } catch (final Exception exception) {
+        }
+        catch (SolrException e) {
+            LOGGER.error("Caught Solr exception :: " + e.getMessage());
+            return new QueryOrSearchResponse(0, Collections.emptyList());
+        }
+        catch (final Exception exception) {
             throw new RuntimeException(exception);
         }
     }
