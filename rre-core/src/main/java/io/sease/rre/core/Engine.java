@@ -213,6 +213,7 @@ public class Engine {
             });
 
             queries.forEach(Query::notifyCollectedMetrics);
+            flushFileChecksums();
 
             return evaluation;
         } finally {
