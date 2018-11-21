@@ -203,6 +203,9 @@ public class Elasticsearch implements SearchPlatform {
         try {
             final SearchResponse qresponse = proxy.search(buildSearchRequest(indexName, query, fields, maxRows)).actionGet();
             return convertResponse(qresponse);
+        } catch (final ElasticsearchException e) {
+            LOGGER.error("Caught ElasticsearchException :: " + e.getMessage());
+            return new QueryOrSearchResponse(0, Collections.emptyList());
         } catch (final IOException exception) {
             throw new RuntimeException(exception);
         }
