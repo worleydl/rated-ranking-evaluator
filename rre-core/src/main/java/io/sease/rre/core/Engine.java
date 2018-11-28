@@ -8,7 +8,6 @@ import io.sease.rre.Func;
 import io.sease.rre.core.domain.*;
 import io.sease.rre.core.domain.metrics.Metric;
 import io.sease.rre.persistence.PersistenceConfiguration;
-import io.sease.rre.persistence.PersistenceException;
 import io.sease.rre.persistence.PersistenceHandler;
 import io.sease.rre.persistence.PersistenceManager;
 import io.sease.rre.search.api.QueryOrSearchResponse;
@@ -247,7 +246,6 @@ public class Engine {
                         });
             });
 
-            queries.forEach(Query::notifyCollectedMetrics);
             flushFileChecksums();
 
             return evaluation;
