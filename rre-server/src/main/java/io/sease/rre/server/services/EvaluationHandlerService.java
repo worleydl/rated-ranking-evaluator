@@ -5,6 +5,7 @@ import io.sease.rre.core.domain.Evaluation;
 import io.sease.rre.server.domain.EvaluationMetadata;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public interface EvaluationHandlerService {
     /**
      * Get the metrics in the evaluation data.
      *
-     * @return a list of metric names (not sanitised).
+     * @return a list of metric names (not sanitised). Never {@code null.}
      * @throws EvaluationHandlerException if problems occur extracting the
      *                                    metrics from the data.
      */
@@ -58,9 +59,19 @@ public interface EvaluationHandlerService {
     /**
      * Get the available corpus names in the evaluation data.
      *
-     * @return the corpus names.
+     * @return the corpus names. Never {@code null}.
      * @throws EvaluationHandlerException if problems occur extracting the
      *                                    names from the data.
      */
     List<String> getCorpusNames() throws EvaluationHandlerException;
+
+    /**
+     * Get the available topics associated with a given corpus.
+     *
+     * @param corpus the corpus whose evaluation topics are required.
+     * @return the topic names. Never {@code null}.
+     * @throws EvaluationHandlerException if problems occur extracting the
+     *                                    names from the data.
+     */
+    List<String> getTopicNames(String corpus) throws EvaluationHandlerException;
 }

@@ -73,4 +73,29 @@ public class HttpEvaluationHandlerServiceListTests {
         List<String> corpusNames = handler.getCorpusNames();
         assertThat(corpusNames).containsExactly("electric_basses.bulk");
     }
+
+    @Test
+    public void getTopicNamesReturnsEmptyList_whenCorpusIsNull() throws Exception {
+        List<String> topicNames = handler.getTopicNames(null);
+
+        assertThat(topicNames).isNotNull();
+        assertThat(topicNames).isEmpty();
+    }
+
+    @Test
+    public void getTopicNamesReturnsEmptyList_whenCorpusDoesNotExist() throws Exception {
+        List<String> topicNames = handler.getTopicNames("blah");
+
+        assertThat(topicNames).isNotNull();
+        assertThat(topicNames).isEmpty();
+    }
+
+    @Test
+    public void getTopicNamesReturnsExpectedTopics() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+
+        List<String> topicNames = handler.getTopicNames("electric_basses.bulk");
+
+        assertThat(topicNames).containsExactly("Fender basses");
+    }
 }

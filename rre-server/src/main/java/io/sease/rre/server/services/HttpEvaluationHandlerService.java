@@ -160,4 +160,21 @@ public class HttpEvaluationHandlerService implements EvaluationHandlerService {
 
         return corpusNames;
     }
+
+    @Override
+    public List<String> getTopicNames(String corpus) throws EvaluationHandlerException {
+        final List<String> topicNames;
+
+        if (evaluation.getChildren() == null || corpus == null) {
+            topicNames = Collections.emptyList();
+        } else {
+            topicNames = evaluation.getChildren().stream()
+                    .filter(c -> c.getName().equals(corpus))
+                    .flatMap(c -> c.getChildren().stream())
+                    .map(Topic::getName)
+                    .collect(Collectors.toList());
+        }
+
+        return topicNames;
+    }
 }
