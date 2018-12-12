@@ -76,4 +76,107 @@ public class UrlEvaluationHandlerServiceListTests {
         List<String> corpusNames = handler.getCorpusNames();
         assertThat(corpusNames).containsExactly("electric_basses.bulk");
     }
+    @Test
+    public void getTopicNamesReturnsEmptyList_whenNoEvaluationSet() throws Exception {
+        List<String> topicNames = handler.getTopicNames("corpus");
+
+        assertThat(topicNames).isNotNull();
+        assertThat(topicNames).isEmpty();
+    }
+
+    @Test
+    public void getTopicNamesReturnsEmptyList_whenCorpusIsNull() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> topicNames = handler.getTopicNames(null);
+
+        assertThat(topicNames).isNotNull();
+        assertThat(topicNames).isEmpty();
+    }
+
+    @Test
+    public void getTopicNamesReturnsEmptyList_whenCorpusDoesNotExist() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> topicNames = handler.getTopicNames("blah");
+
+        assertThat(topicNames).isNotNull();
+        assertThat(topicNames).isEmpty();
+    }
+
+    @Test
+    public void getTopicNamesReturnsExpectedTopics() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+
+        List<String> topicNames = handler.getTopicNames("electric_basses.bulk");
+
+        assertThat(topicNames).containsExactly("Fender basses", "Gibson basses");
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsEmptyList_whenNoEvaluationSet() throws Exception {
+        List<String> qgNames = handler.getQueryGroupNames("", "");
+
+        assertThat(qgNames).isNotNull();
+        assertThat(qgNames).isEmpty();
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsEmptyList_whenCorpusIsNull() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> qgNames = handler.getQueryGroupNames(null, "");
+
+        assertThat(qgNames).isNotNull();
+        assertThat(qgNames).isEmpty();
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsEmptyList_whenTopicIsNull() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> qgNames = handler.getQueryGroupNames("corpus", null);
+
+        assertThat(qgNames).isNotNull();
+        assertThat(qgNames).isEmpty();
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsEmptyList_whenNoSuchCorpus() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> qgNames = handler.getQueryGroupNames("corpus", "Fender basses");
+
+        assertThat(qgNames).isNotNull();
+        assertThat(qgNames).isEmpty();
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsEmptyList_whenNoSuchTopic() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> qgNames = handler.getQueryGroupNames("electric_basses.bulk", "");
+
+        assertThat(qgNames).isNotNull();
+        assertThat(qgNames).isEmpty();
+    }
+
+    @Test
+    public void getQueryGroupNamesReturnsExpectedList() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        List<String> qgNames = handler.getQueryGroupNames("electric_basses.bulk", "Fender basses");
+
+        assertThat(qgNames.size()).isEqualTo(2);
+        assertThat(qgNames).contains("The group tests several searches on the Fender brand", "Several searches on a given model (Jazz bass)");
+    }
 }

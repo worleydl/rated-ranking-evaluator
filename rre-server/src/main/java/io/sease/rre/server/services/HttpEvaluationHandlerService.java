@@ -177,4 +177,23 @@ public class HttpEvaluationHandlerService implements EvaluationHandlerService {
 
         return topicNames;
     }
+
+    @Override
+    public List<String> getQueryGroupNames(String corpus, String topic) throws EvaluationHandlerException {
+        final List<String> queryGroupNames;
+
+        if (corpus == null || topic == null) {
+            queryGroupNames = Collections.emptyList();
+        } else {
+            queryGroupNames = evaluation.getChildren().stream()
+                    .filter(c -> c.getName().equals(corpus))
+                    .flatMap(c -> c.getChildren().stream())
+                    .filter(t -> t.getName().equals(topic))
+                    .flatMap(t -> t.getChildren().stream())
+                    .map(QueryGroup::getName)
+                    .collect(Collectors.toList());
+        }
+
+        return queryGroupNames;
+    }
 }

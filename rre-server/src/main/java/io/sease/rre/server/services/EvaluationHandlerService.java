@@ -74,4 +74,15 @@ public interface EvaluationHandlerService {
      *                                    names from the data.
      */
     List<String> getTopicNames(String corpus) throws EvaluationHandlerException;
+
+    /**
+     * Get the available query groups in a topic and corpus.
+     *
+     * @param corpus the corpus containing the topic.
+     * @param topic  the topic whose query groups are required.
+     * @return the query group names. Never {@code null}.
+     * @throws EvaluationHandlerException if problems occur extracting the
+     *                                    query group names from the data.
+     */
+    List<String> getQueryGroupNames(String corpus, String topic) throws EvaluationHandlerException;
 }
