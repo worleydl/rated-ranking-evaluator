@@ -5,12 +5,14 @@ import io.sease.rre.core.domain.Evaluation;
 import io.sease.rre.server.domain.EvaluationMetadata;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * An EvaluationHandlerService can be used to process an incoming evaluation
  * update request. It should extract the relevant details from the request,
  * and use them to build an Evaluation object that can be used to populate
  * the dashboard.
- *
+ * <p>
  * The {@link #processEvaluationRequest(JsonNode)} method should ideally
  * return as quickly as possible, to avoid blocking the sender of the incoming
  * request. The evaluation data can then be retrieved using {@link #getEvaluation()}
@@ -43,4 +45,13 @@ public interface EvaluationHandlerService {
      * @return the evaluation metadata.
      */
     EvaluationMetadata getEvaluationMetadata();
+
+    /**
+     * Get the metrics in the evaluation data.
+     *
+     * @return a list of metric names (not sanitised).
+     * @throws EvaluationHandlerException if problems occur extracting the
+     *                                    metrics from the data.
+     */
+    List<String> getMetrics() throws EvaluationHandlerException;
 }

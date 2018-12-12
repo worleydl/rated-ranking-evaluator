@@ -141,4 +141,9 @@ public class HttpEvaluationHandlerService implements EvaluationHandlerService {
 
         return new EvaluationMetadata(versions, metrics);
     }
+
+    @Override
+    public List<String> getMetrics() throws EvaluationHandlerException {
+        return new ArrayList<>(evaluation.getMetrics().keySet());
+    }
 }
