@@ -57,4 +57,20 @@ public class HttpEvaluationHandlerServiceListTests {
         List<String> metrics = handler.getMetrics();
         assertThat(metrics).contains("P", "R", "RR@10", "AP", "NDCG@10", "P@1", "P@2", "P@3", "P@10");
     }
+
+    @Test
+    public void getCorpusNamesReturnsEmptyList_whenNoEvaluationSet() throws Exception {
+        List<String> corpusNames = handler.getCorpusNames();
+
+        assertThat(corpusNames).isNotNull();
+        assertThat(corpusNames).isEmpty();
+    }
+
+    @Test
+    public void getCorpusNamesReturnsExpectedList() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+
+        List<String> corpusNames = handler.getCorpusNames();
+        assertThat(corpusNames).containsExactly("electric_basses.bulk");
+    }
 }

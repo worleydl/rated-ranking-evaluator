@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.StreamSupport.stream;
 
@@ -145,5 +146,18 @@ public class HttpEvaluationHandlerService implements EvaluationHandlerService {
     @Override
     public List<String> getMetrics() throws EvaluationHandlerException {
         return new ArrayList<>(evaluation.getMetrics().keySet());
+    }
+
+    @Override
+    public List<String> getCorpusNames() throws EvaluationHandlerException {
+        final List<String> corpusNames;
+
+        if (evaluation.getChildren() == null) {
+            corpusNames = Collections.emptyList();
+        } else {
+            corpusNames = evaluation.getChildren().stream().map(Corpus::getName).collect(Collectors.toList());
+        }
+
+        return corpusNames;
     }
 }

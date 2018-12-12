@@ -54,4 +54,13 @@ public interface EvaluationHandlerService {
      *                                    metrics from the data.
      */
     List<String> getMetrics() throws EvaluationHandlerException;
+
+    /**
+     * Get the available corpus names in the evaluation data.
+     *
+     * @return the corpus names.
+     * @throws EvaluationHandlerException if problems occur extracting the
+     *                                    names from the data.
+     */
+    List<String> getCorpusNames() throws EvaluationHandlerException;
 }
