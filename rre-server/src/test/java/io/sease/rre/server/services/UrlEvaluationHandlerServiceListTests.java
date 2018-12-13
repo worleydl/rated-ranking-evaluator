@@ -60,6 +60,24 @@ public class UrlEvaluationHandlerServiceListTests {
     }
 
     @Test
+    public void getVersionsReturnsEmptyList_whenNoEvaluationSet() throws Exception {
+        List<String> versions = handler.getVersions();
+
+        assertThat(versions).isNotNull();
+        assertThat(versions).isEmpty();
+    }
+
+    @Test
+    public void getVersionsReturnsExpectedList() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+
+        List<String> versions = handler.getVersions();
+        assertThat(versions).contains("v1.0", "v1.1");
+    }
+
+    @Test
     public void getCorpusNamesReturnsEmptyList_whenNoEvaluationSet() throws Exception {
         List<String> corpusNames = handler.getCorpusNames();
 

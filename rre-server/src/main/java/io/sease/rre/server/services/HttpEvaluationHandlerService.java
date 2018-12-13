@@ -3,6 +3,7 @@ package io.sease.rre.server.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sease.rre.core.domain.*;
+import io.sease.rre.core.domain.metrics.Metric;
 import io.sease.rre.server.domain.EvaluationMetadata;
 import io.sease.rre.server.domain.StaticMetric;
 import org.springframework.context.annotation.Profile;
@@ -10,10 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.StreamSupport.stream;
@@ -146,6 +144,22 @@ public class HttpEvaluationHandlerService implements EvaluationHandlerService {
     @Override
     public List<String> getMetrics() throws EvaluationHandlerException {
         return new ArrayList<>(evaluation.getMetrics().keySet());
+    }
+
+    @Override
+    public List<String> getVersions() throws EvaluationHandlerException {
+        final List<String> versions;
+
+        if (evaluation.getMetrics() == null || evaluation.getMetrics().isEmpty()) {
+            versions = Collections.emptyList();
+        } else {
+            // Simply get the first metric from the metric map...
+            Metric m = evaluation.getMetrics().values().iterator().next();
+            // ... and extract the versions
+            versions = new ArrayList<>(m.getVersions().keySet());
+        }
+
+        return versions;
     }
 
     @Override

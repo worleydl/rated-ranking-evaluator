@@ -65,6 +65,24 @@ public class RREController {
         }
     }
 
+    @ApiOperation(value = "Returns the list of available metrics.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method successfully returned the evaluation data."),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 414, message = "Request-URI Too Long"),
+            @ApiResponse(code = 500, message = "System internal failure occurred.")
+    })
+    @GetMapping(value = "/versionList", produces = {"application/json"})
+    @ResponseBody
+    public List<String> getVersionList() {
+        try {
+            return evaluationHandler.getVersions();
+        } catch (EvaluationHandlerException e) {
+            LOGGER.error("Caught EvaluationHandlerException fetching available metrics: {}", e);
+            return Collections.emptyList();
+        }
+    }
+
     @ApiOperation(value = "Returns the list of available corpora.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method successfully returned the evaluation data."),

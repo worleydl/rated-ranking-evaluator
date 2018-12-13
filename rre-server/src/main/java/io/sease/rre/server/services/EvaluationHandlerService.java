@@ -6,6 +6,7 @@ import io.sease.rre.server.domain.EvaluationMetadata;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,6 +56,15 @@ public interface EvaluationHandlerService {
      *                                    metrics from the data.
      */
     List<String> getMetrics() throws EvaluationHandlerException;
+
+    /**
+     * Get the available versions from the evaluation data.
+     *
+     * @return a list of versions. Never {@code null}.
+     * @throws EvaluationHandlerException if the versions cannot be retrieved
+     *                                    for some reason.
+     */
+    List<String> getVersions() throws EvaluationHandlerException;
 
     /**
      * Get the available corpus names in the evaluation data.
