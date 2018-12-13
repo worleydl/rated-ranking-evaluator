@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class RREController {
         }
     }
 
-    @ApiOperation(value = "Returns the list of available metrics.")
+    @ApiOperation(value = "Returns the list of available versions.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method successfully returned the evaluation data."),
             @ApiResponse(code = 400, message = "Bad Request"),
@@ -78,7 +79,7 @@ public class RREController {
         try {
             return evaluationHandler.getVersions();
         } catch (EvaluationHandlerException e) {
-            LOGGER.error("Caught EvaluationHandlerException fetching available metrics: {}", e);
+            LOGGER.error("Caught EvaluationHandlerException fetching available versions: {}", e);
             return Collections.emptyList();
         }
     }
@@ -96,7 +97,7 @@ public class RREController {
         try {
             return evaluationHandler.getCorpusNames();
         } catch (EvaluationHandlerException e) {
-            LOGGER.error("Caught EvaluationHandlerException fetching available metrics: {}", e);
+            LOGGER.error("Caught EvaluationHandlerException fetching available corpora: {}", e);
             return Collections.emptyList();
         }
     }
@@ -114,7 +115,7 @@ public class RREController {
         try {
             return evaluationHandler.getTopicNames(corpus);
         } catch (EvaluationHandlerException e) {
-            LOGGER.error("Caught EvaluationHandlerException fetching available metrics: {}", e);
+            LOGGER.error("Caught EvaluationHandlerException fetching available topics: {}", e);
             return Collections.emptyList();
         }
     }
@@ -133,8 +134,30 @@ public class RREController {
         try {
             return evaluationHandler.getQueryGroupNames(corpus, topic);
         } catch (EvaluationHandlerException e) {
-            LOGGER.error("Caught EvaluationHandlerException fetching available metrics: {}", e);
+            LOGGER.error("Caught EvaluationHandlerException fetching available query groups: {}", e);
             return Collections.emptyList();
+        }
+    }
+
+    @ApiOperation(value = "Filters an evaluation by corpus, topic, query group, versions and metrics")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method successfully returned the evaluation data."),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 414, message = "Request-URI Too Long"),
+            @ApiResponse(code = 500, message = "System internal failure occurred.")
+    })
+    @GetMapping(value = "/filter", produces = {"application/json"})
+    @ResponseBody
+    public Evaluation getFilteredEvaluation(@RequestParam(name = "corpus", required = false) String corpus,
+                                            @RequestParam(name = "topic", required = false) String topic,
+                                            @RequestParam(name = "queryGroup", required = false) String queryGroup,
+                                            @RequestParam(name = "metric", required = false) Collection<String> metrics,
+                                            @RequestParam(name = "version", required = false) Collection<String> versions) {
+        try {
+            return evaluationHandler.filterEvaluation(corpus, topic, queryGroup, metrics, versions);
+        } catch (EvaluationHandlerException e) {
+            LOGGER.error("Caught EvaluationHandlerException filtering the evaluation: {}", e);
+            return new Evaluation();
         }
     }
 }

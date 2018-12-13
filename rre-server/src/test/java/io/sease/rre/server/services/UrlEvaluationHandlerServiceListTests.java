@@ -2,12 +2,19 @@ package io.sease.rre.server.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sease.rre.core.domain.Corpus;
+import io.sease.rre.core.domain.Evaluation;
+import io.sease.rre.core.domain.QueryGroup;
+import io.sease.rre.core.domain.Topic;
+import io.sease.rre.core.domain.metrics.Metric;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UrlEvaluationHandlerServiceListTests {
 
     private static final String EXAMPLE_JSON_FILE = "/http/example_evaluation.json";
+
+    private static final String CORPUS = "electric_basses.bulk";
+    private static final String TOPIC = "Fender basses";
+    private static final String QUERYGROUP = "The group tests several searches on the Fender brand";
 
     private static JsonNode exampleJson;
 
@@ -92,7 +103,7 @@ public class UrlEvaluationHandlerServiceListTests {
         Thread.sleep(250);
 
         List<String> corpusNames = handler.getCorpusNames();
-        assertThat(corpusNames).containsExactly("electric_basses.bulk");
+        assertThat(corpusNames).containsExactly(CORPUS);
     }
     @Test
     public void getTopicNamesReturnsEmptyList_whenNoEvaluationSet() throws Exception {
@@ -130,7 +141,7 @@ public class UrlEvaluationHandlerServiceListTests {
         // Sleep for long enough to read evaluation from URL
         Thread.sleep(250);
 
-        List<String> topicNames = handler.getTopicNames("electric_basses.bulk");
+        List<String> topicNames = handler.getTopicNames(CORPUS);
 
         assertThat(topicNames).containsExactly("Fender basses", "Gibson basses");
     }
@@ -170,7 +181,7 @@ public class UrlEvaluationHandlerServiceListTests {
         handler.processEvaluationRequest(exampleJson);
         // Sleep for long enough to read evaluation from URL
         Thread.sleep(250);
-        List<String> qgNames = handler.getQueryGroupNames("corpus", "Fender basses");
+        List<String> qgNames = handler.getQueryGroupNames("corpus", TOPIC);
 
         assertThat(qgNames).isNotNull();
         assertThat(qgNames).isEmpty();
@@ -181,7 +192,7 @@ public class UrlEvaluationHandlerServiceListTests {
         handler.processEvaluationRequest(exampleJson);
         // Sleep for long enough to read evaluation from URL
         Thread.sleep(250);
-        List<String> qgNames = handler.getQueryGroupNames("electric_basses.bulk", "");
+        List<String> qgNames = handler.getQueryGroupNames(CORPUS, "");
 
         assertThat(qgNames).isNotNull();
         assertThat(qgNames).isEmpty();
@@ -192,9 +203,131 @@ public class UrlEvaluationHandlerServiceListTests {
         handler.processEvaluationRequest(exampleJson);
         // Sleep for long enough to read evaluation from URL
         Thread.sleep(250);
-        List<String> qgNames = handler.getQueryGroupNames("electric_basses.bulk", "Fender basses");
+        List<String> qgNames = handler.getQueryGroupNames(CORPUS, TOPIC);
 
         assertThat(qgNames.size()).isEqualTo(2);
         assertThat(qgNames).contains("The group tests several searches on the Fender brand", "Several searches on a given model (Jazz bass)");
+    }
+
+    @Test
+    public void filterEvaluationReturnsEmptyEvaluation_whenNoEvaluationSet() throws Exception {
+        Evaluation eval = handler.filterEvaluation(CORPUS, TOPIC, QUERYGROUP, Arrays.asList("P", "R"), Arrays.asList("v1.0", "v1.1"));
+
+        assertThat(eval).isNotNull();
+        assertThat(eval.getChildren()).isNullOrEmpty();
+    }
+
+    @Test
+    public void filterEvaluationReturnsFilteredEvaluation() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        Evaluation eval = handler.filterEvaluation(CORPUS, TOPIC, QUERYGROUP, Arrays.asList("P", "R", "AP"), Collections.singleton("v1.1"));
+
+        assertThat(eval).isNotNull();
+        assertThat(eval.getChildren().size()).isEqualTo(1);
+
+        Corpus c = eval.getChildren().get(0);
+        assertThat(c.getName()).isEqualTo(CORPUS);
+        assertThat(c.getChildren().size()).isEqualTo(1);
+
+        Topic t = c.getChildren().get(0);
+        assertThat(t.getName()).isEqualTo(TOPIC);
+        assertThat(t.getChildren().size()).isEqualTo(1);
+
+        QueryGroup qg = t.getChildren().get(0);
+        assertThat(qg.getName()).isEqualTo(QUERYGROUP);
+
+        // Check the metrics
+        assertThat(eval.getMetrics().size()).isEqualTo(3);
+        assertThat(eval.getMetrics().keySet()).contains("P", "R", "AP");
+        Metric m = eval.getMetrics().values().iterator().next();
+        assertThat(m.getVersions().size()).isEqualTo(1);
+        assertThat(m.getVersions().keySet()).containsExactly("v1.1");
+    }
+
+    @Test
+    public void filterEvaluationReturnsFilteredEvaluation_withMissingParams() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        Evaluation eval = handler.filterEvaluation(null, TOPIC, null, Arrays.asList("P", "R", "AP"), Collections.singleton("v1.0"));
+
+        assertThat(eval).isNotNull();
+        assertThat(eval.getChildren().size()).isEqualTo(1);
+
+        // Only one corpus in the eval file
+        Corpus c = eval.getChildren().get(0);
+        // Check that only one child (topic) returned
+        assertThat(c.getChildren().size()).isEqualTo(1);
+
+        // Check that the topic is the one we asked for
+        Topic t = c.getChildren().get(0);
+        assertThat(t.getName()).isEqualTo(TOPIC);
+
+        // Check the metrics
+        assertThat(eval.getMetrics().size()).isEqualTo(3);
+        assertThat(eval.getMetrics().keySet()).contains("P", "R", "AP");
+        Metric m = eval.getMetrics().values().iterator().next();
+        assertThat(m.getVersions().size()).isEqualTo(1);
+        assertThat(m.getVersions().keySet()).containsExactly("v1.0");
+    }
+
+    @Test
+    public void filterEvaluationReturnsAllVersions_withMissingVersionParam() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        Evaluation eval = handler.filterEvaluation(CORPUS, TOPIC, QUERYGROUP, Arrays.asList("P", "R", "AP"), null);
+
+        assertThat(eval).isNotNull();
+        assertThat(eval.getChildren().size()).isEqualTo(1);
+
+        Corpus c = eval.getChildren().get(0);
+        assertThat(c.getName()).isEqualTo(CORPUS);
+        assertThat(c.getChildren().size()).isEqualTo(1);
+
+        Topic t = c.getChildren().get(0);
+        assertThat(t.getName()).isEqualTo(TOPIC);
+        assertThat(t.getChildren().size()).isEqualTo(1);
+
+        QueryGroup qg = t.getChildren().get(0);
+        assertThat(qg.getName()).isEqualTo(QUERYGROUP);
+
+        // Check the metrics
+        assertThat(eval.getMetrics().size()).isEqualTo(3);
+        assertThat(eval.getMetrics().keySet()).contains("P", "R", "AP");
+        Metric m = eval.getMetrics().values().iterator().next();
+        assertThat(m.getVersions().size()).isEqualTo(2);
+        assertThat(m.getVersions().keySet()).containsExactly("v1.0", "v1.1");
+    }
+
+    @Test
+    public void filterEvaluationReturnsAllMetrics_withMissingMetricParam() throws Exception {
+        handler.processEvaluationRequest(exampleJson);
+        // Sleep for long enough to read evaluation from URL
+        Thread.sleep(250);
+        Evaluation eval = handler.filterEvaluation(CORPUS, TOPIC, QUERYGROUP, null, Collections.singleton("v1.1"));
+
+        assertThat(eval).isNotNull();
+        assertThat(eval.getChildren().size()).isEqualTo(1);
+
+        Corpus c = eval.getChildren().get(0);
+        assertThat(c.getName()).isEqualTo(CORPUS);
+        assertThat(c.getChildren().size()).isEqualTo(1);
+
+        Topic t = c.getChildren().get(0);
+        assertThat(t.getName()).isEqualTo(TOPIC);
+        assertThat(t.getChildren().size()).isEqualTo(1);
+
+        QueryGroup qg = t.getChildren().get(0);
+        assertThat(qg.getName()).isEqualTo(QUERYGROUP);
+
+        // Check the metrics
+        assertThat(eval.getMetrics().size()).isEqualTo(9);
+        assertThat(eval.getMetrics().keySet()).contains("P", "R", "RR@10", "AP", "NDCG@10", "P@1", "P@2", "P@3", "P@10");
+        Metric m = eval.getMetrics().values().iterator().next();
+        assertThat(m.getVersions().size()).isEqualTo(1);
+        assertThat(m.getVersions().keySet()).containsExactly("v1.1");
     }
 }

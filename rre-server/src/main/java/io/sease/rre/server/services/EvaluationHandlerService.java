@@ -95,4 +95,20 @@ public interface EvaluationHandlerService {
      *                                    query group names from the data.
      */
     List<String> getQueryGroupNames(String corpus, String topic) throws EvaluationHandlerException;
+
+    /**
+     * Retrieve an evaluation, using the optional filters to limit the data
+     * returned.
+     *
+     * @param corpus     the corpus whose evaluation data is required.
+     * @param topic      the topic to return.
+     * @param queryGroup the query group to return.
+     * @param metrics    the list of metrics required.
+     * @param versions   the versions of the metrics to return.
+     * @return an evaluation limited by the filter parameters.
+     * @throws EvaluationHandlerException if problems occur extracting the
+     *                                    data.
+     */
+    Evaluation filterEvaluation(String corpus, String topic, String queryGroup, Collection<String> metrics, Collection<String> versions)
+            throws EvaluationHandlerException;
 }
